@@ -11,4 +11,5 @@
         <attr name="textColor" format="color" />
         <attr name="max" format="integer" />
     </declare-styleable>
+    
 </resources>

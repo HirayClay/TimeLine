@@ -8,14 +8,16 @@ import android.graphics.Paint;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.List;
+
 /**
  * Created by CJJ on 2017/5/5..
- *
  */
 
 public class TimeLine extends View implements View.OnTouchListener {
@@ -31,16 +33,20 @@ public class TimeLine extends View implements View.OnTouchListener {
     int activeColor;
     @ColorInt
     int mTextColor;
-    int mNodeSize;
+    int mNodeRadius;
     int mTextSize;
     int barThickness;
 
     Paint barPaint;
     TextPaint textPaint;
+    String[] nodeText;
+    String[] bufNodeText;
 
     private static final int DEFAULT_GAP_SIZE = 35;
     private static final int DEFAULT_PADDING = 20;
     private static final int DEFAULT_BAR_THICKNESS = 15;
+    private int headerSpace;
+    private int tailSpace;
 
     public TimeLine(Context context) {
         super(context);
@@ -53,12 +59,13 @@ public class TimeLine extends View implements View.OnTouchListener {
         activeColor = array.getColor(R.styleable.TimeLine_activeColor, Color.BLUE);
         normalColor = array.getColor(R.styleable.TimeLine_normalColor, Color.GREEN);
         barColor = array.getColor(R.styleable.TimeLine_barColor, Color.CYAN);
-        mNodeSize = array.getDimensionPixelSize(R.styleable.TimeLine_nodeSize, 10);
+        mNodeRadius = array.getDimensionPixelSize(R.styleable.TimeLine_nodeSize, 10);
         mUnitGapSize = array.getDimensionPixelSize(R.styleable.TimeLine_unitGapSize, 30);
         mTextSize = array.getDimensionPixelSize(R.styleable.TimeLine_textSize, DEFAULT_GAP_SIZE);
         barThickness = array.getDimensionPixelOffset(R.styleable.TimeLine_barThickness, DEFAULT_BAR_THICKNESS);
         mTextColor = array.getColor(R.styleable.TimeLine_textColor, Color.GREEN);
 
+        array.recycle();
         activeNodes = new boolean[mMax];
         setOnTouchListener(this);
         initPaint();
@@ -92,15 +99,18 @@ public class TimeLine extends View implements View.OnTouchListener {
         int h = MeasureSpec.getSize(heightMeasureSpec);
 
         int measureW = 0;
-        int measureH = mTextSize + DEFAULT_PADDING + 2 * mNodeSize + DEFAULT_PADDING;
+        int measureH = mTextSize + DEFAULT_PADDING + 2 * mNodeRadius + DEFAULT_PADDING;
         if (mUnitGapSize != DEFAULT_GAP_SIZE && mMax > 0) {
-            Log.i(TAG, "onMeasure: ");
-            measureW = ((mMax - 1) * mUnitGapSize) + 2 * mNodeSize;
+            measureW = ((mMax - 1) * mUnitGapSize) + 2 * mNodeRadius;
+            if (nodeText != null && nodeText.length > 0) {
+                headerSpace = (int) Math.max(mNodeRadius, textPaint.measureText(nodeText[0]) / 2);
+                tailSpace = nodeText.length >= mMax ? (int) Math.max(mNodeRadius, textPaint.measureText(nodeText[mMax - 1])) : 0;
+                measureW += headerSpace + tailSpace;
+                measureW -= 2 * mNodeRadius;
+            }
             setMeasuredDimension(measureW, measureH);
             return;
         }
-//        int modeW = MeasureSpec.getMode(widthMeasureSpec);
-//        w = Math.min(w, measureW);
         setMeasuredDimension(Math.max(w, measureW), Math.max(h, measureH));
     }
 
@@ -120,6 +130,7 @@ public class TimeLine extends View implements View.OnTouchListener {
         invalidate();
     }
 
+    //// TODO: 2017/5/8
     public boolean[] getActiveNodes() {
         boolean[] activeNd = null;
         for (int i = 0; i < activeNodes.length; i++) {
@@ -139,24 +150,42 @@ public class TimeLine extends View implements View.OnTouchListener {
         invalidate();
     }
 
-    public void setNodeSize(int nodeSize) {
-        this.mNodeSize = nodeSize;
+
+    public void setNodeRadius(int nodeSize) {
+        this.mNodeRadius = nodeSize;
         invalidate();
+    }
+
+    /**
+     * the description below the node
+     *
+     * @param ndText
+     */
+    public void setNodeText(String[] ndText) {
+        nodeText = ndText;
+        invalidate();
+    }
+
+    public void setListNodeText(List<String> nodeText) {
+        this.nodeText = (String[]) nodeText.toArray();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         barPaint.setColor(barColor);
-        canvas.drawRect(mNodeSize, DEFAULT_PADDING, getMeasuredWidth(), DEFAULT_PADDING + barThickness, barPaint);
+        int space = headerSpace == 0 ? mNodeRadius : headerSpace;
+        canvas.drawRect(space, DEFAULT_PADDING, getMeasuredWidth() - tailSpace, DEFAULT_PADDING + barThickness, barPaint);
         for (int i = 0; i < mMax; i++) {
             if (activeNodes[i]) {
-                int x = mUnitGapSize * i + mNodeSize;
+                int x = mUnitGapSize * i + space;
                 barPaint.setColor(activeColor);
-                canvas.drawCircle(x, barThickness / 2 + DEFAULT_PADDING, mNodeSize, barPaint);
+                canvas.drawCircle(x, barThickness / 2 + DEFAULT_PADDING, mNodeRadius, barPaint);
                 Paint.FontMetrics fm = textPaint.getFontMetrics();
-                int baseline = (int) (-fm.top + barThickness + DEFAULT_PADDING + Math.max(barThickness, barThickness + mNodeSize - barThickness / 2));
-                canvas.drawText(i + "day", x, baseline, textPaint);
+                int baseline = (int) (-fm.top + barThickness + DEFAULT_PADDING + Math.max(barThickness, barThickness + mNodeRadius - barThickness / 2));
+                Log.i(TAG, "onDraw: " + (nodeText == null));
+                if (nodeText != null && i < nodeText.length && !TextUtils.isEmpty(nodeText[i]))
+                    canvas.drawText(nodeText[i], x - textPaint.measureText(nodeText[i]) / 2, baseline, textPaint);
             }
         }
     }
@@ -171,7 +200,7 @@ public class TimeLine extends View implements View.OnTouchListener {
      * @return the pointer index the (x,y)
      */
     private int computePointIndex(int x, int y) {
-        if (y > DEFAULT_PADDING - mNodeSize / 2 && y < DEFAULT_PADDING + barThickness + mNodeSize / 2) {
+        if (y > DEFAULT_PADDING - mNodeRadius / 2 && y < DEFAULT_PADDING + barThickness + mNodeRadius / 2) {
             int v = x / mUnitGapSize;
             return activeNodes[v] ? v : -1;
         }
@@ -190,8 +219,6 @@ public class TimeLine extends View implements View.OnTouchListener {
                 int index = computePointIndex(curX, curY);
                 if (index == downPointIndex & index != -1) {
                     // TODO: 2017/5/5
-                    int[] loc = new int[2];
-                    getLocationInWindow(loc);
                     int rx = index * mUnitGapSize;
                     int ry = barThickness / 2 + DEFAULT_PADDING;
                     if (onPointClickListener != null)
@@ -210,6 +237,11 @@ public class TimeLine extends View implements View.OnTouchListener {
     }
 
     public interface OnPointClickListener {
+        /**
+         * @param index the node index which is clicked
+         * @param x     the x coordinate in screen of the clicked node
+         * @param y     the y coordinate in screen of the clicked node
+         */
         void onPointerClick(int index, int x, int y);
     }
 }
