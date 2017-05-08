@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.seele.timeline.TimeLineActivity">
+
+    <com.example.seele.timeline.TimeLine
+        android:id="@+id/time_line"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="100dp"
+        android:onClick="onClick"
+        app:activeColor="@color/colorAccent"
+        app:barColor="#f0f"
+        app:barThickness="2dp"
+        app:max="7"
+        app:nodeSize="3dp"
+        app:normalColor="@color/colorPrimary"
+        app:textColor="#e6cf08"
+        app:textSize="13sp"
+        app:unitGapSize="40dp" />
+</RelativeLayout>
