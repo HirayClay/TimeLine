@@ -6,10 +6,32 @@
         <attr name="normalColor" format="color" />
         <attr name="barColor" format="color" />
         <attr name="barThickness" format="dimension" />
+        <attr name="default_padding" format="dimension" />
         <attr name="nodeSize" format="dimension" />
         <attr name="textSize" format="dimension" />
         <attr name="textColor" format="color" />
         <attr name="max" format="integer" />
     </declare-styleable>
-    
+
+    <declare-styleable name="Bubble">
+        <attr name="arrow_direction" format="enum">
+            <enum name="left" value="0" />
+            <enum name="top" value="1" />
+            <enum name="right" value="2" />
+            <enum name="bottom" value="3" />
+        </attr>
+
+        <attr name="arrow_height" format="dimension" />
+        <attr name="arrow_start_position" format="dimension" />
+        <attr name="arrow_width" format="dimension" />
+        <attr name="arrow_color" format="color" />
+
+        <attr name="left_top_corner" format="dimension" />
+        <attr name="right_top_corner" format="dimension" />
+        <attr name="left_bottom_corner" format="dimension" />
+        <attr name="right_bottom_corner" format="dimension" />
+        <attr name="is_floating" format="boolean"/>
+
+    </declare-styleable>
+
 </resources>

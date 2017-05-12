@@ -3,6 +3,8 @@ package com.example.seele.timeline;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import java.util.Arrays;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
@@ -21,11 +23,11 @@ public class TimeLineActivity extends AppCompatActivity implements TimeLine.OnPo
 
     private void init() {
         timeLine.setOnPointClickListener(this);
-        timeLine.setNodeText(new String[]{"1day", "2day", "3day", "4day", "5day", "6day", "7day"});
+        timeLine.setListNodeText(Arrays.asList("1day", "2day", "3day", "4day", "5day", "6day", "7day"));
     }
 
     @Override
     public void onPointerClick(int index, int x, int y) {
-        timeLine.perturbNode(index,false);
+        timeLine.perturbNode(index, false);
     }
 }

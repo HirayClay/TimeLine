@@ -23,7 +23,6 @@ import java.util.List;
 public class TimeLine extends View implements View.OnTouchListener {
     private static final String TAG = "TimeLine";
     int mMax;
-    int mUnitGapSize;
     boolean[] activeNodes;
     @ColorInt
     int barColor;
@@ -33,14 +32,16 @@ public class TimeLine extends View implements View.OnTouchListener {
     int activeColor;
     @ColorInt
     int mTextColor;
+
+    int defaultPadding;
     int mNodeRadius;
+    int mUnitGapSize;
     int mTextSize;
     int barThickness;
 
     Paint barPaint;
     TextPaint textPaint;
     String[] nodeText;
-    String[] bufNodeText;
 
     private static final int DEFAULT_GAP_SIZE = 35;
     private static final int DEFAULT_PADDING = 20;
@@ -63,6 +64,7 @@ public class TimeLine extends View implements View.OnTouchListener {
         mUnitGapSize = array.getDimensionPixelSize(R.styleable.TimeLine_unitGapSize, 30);
         mTextSize = array.getDimensionPixelSize(R.styleable.TimeLine_textSize, DEFAULT_GAP_SIZE);
         barThickness = array.getDimensionPixelOffset(R.styleable.TimeLine_barThickness, DEFAULT_BAR_THICKNESS);
+        defaultPadding = array.getDimensionPixelOffset(R.styleable.TimeLine_default_padding, DEFAULT_PADDING);
         mTextColor = array.getColor(R.styleable.TimeLine_textColor, Color.GREEN);
 
         array.recycle();
@@ -99,8 +101,8 @@ public class TimeLine extends View implements View.OnTouchListener {
         int h = MeasureSpec.getSize(heightMeasureSpec);
 
         int measureW = 0;
-        int measureH = mTextSize + DEFAULT_PADDING + 2 * mNodeRadius + DEFAULT_PADDING;
-        if (mUnitGapSize != DEFAULT_GAP_SIZE && mMax > 0) {
+        int measureH = mTextSize + defaultPadding + 2 * mNodeRadius + defaultPadding;
+        if (mMax > 0) {
             measureW = ((mMax - 1) * mUnitGapSize) + 2 * mNodeRadius;
             if (nodeText != null && nodeText.length > 0) {
                 headerSpace = (int) Math.max(mNodeRadius, textPaint.measureText(nodeText[0]) / 2);
@@ -109,15 +111,15 @@ public class TimeLine extends View implements View.OnTouchListener {
                 measureW -= 2 * mNodeRadius;
             }
             setMeasuredDimension(measureW, measureH);
-            return;
-        }
-        setMeasuredDimension(Math.max(w, measureW), Math.max(h, measureH));
+        } else
+            setMeasuredDimension(Math.max(w, measureW), Math.max(h, measureH));
     }
 
     public void setUnitGapSize(int unitGapSize) {
         if (unitGapSize <= 0)
             throw new IllegalStateException("unitGapSize can not be <= 0, but is " + unitGapSize);
         this.mUnitGapSize = unitGapSize;
+        invalidate();
     }
 
     public int getUnitGapSize() {
@@ -128,15 +130,6 @@ public class TimeLine extends View implements View.OnTouchListener {
         if (nodeIndex <= mMax)
             activeNodes[nodeIndex] = active;
         invalidate();
-    }
-
-    //// TODO: 2017/5/8
-    public boolean[] getActiveNodes() {
-        boolean[] activeNd = null;
-        for (int i = 0; i < activeNodes.length; i++) {
-
-        }
-        return activeNd;
     }
 
     /**
@@ -168,6 +161,7 @@ public class TimeLine extends View implements View.OnTouchListener {
 
     public void setListNodeText(List<String> nodeText) {
         this.nodeText = (String[]) nodeText.toArray();
+        invalidate();
     }
 
     @Override
@@ -175,14 +169,14 @@ public class TimeLine extends View implements View.OnTouchListener {
         super.onDraw(canvas);
         barPaint.setColor(barColor);
         int space = headerSpace == 0 ? mNodeRadius : headerSpace;
-        canvas.drawRect(space, DEFAULT_PADDING, getMeasuredWidth() - tailSpace, DEFAULT_PADDING + barThickness, barPaint);
+        canvas.drawRect(space, defaultPadding, getMeasuredWidth() - tailSpace, defaultPadding + barThickness, barPaint);
         for (int i = 0; i < mMax; i++) {
             if (activeNodes[i]) {
                 int x = mUnitGapSize * i + space;
                 barPaint.setColor(activeColor);
-                canvas.drawCircle(x, barThickness / 2 + DEFAULT_PADDING, mNodeRadius, barPaint);
+                canvas.drawCircle(x, barThickness / 2 + defaultPadding, mNodeRadius, barPaint);
                 Paint.FontMetrics fm = textPaint.getFontMetrics();
-                int baseline = (int) (-fm.top + barThickness + DEFAULT_PADDING + Math.max(barThickness, barThickness + mNodeRadius - barThickness / 2));
+                int baseline = (int) (-fm.top + barThickness + defaultPadding + Math.max(barThickness, barThickness + mNodeRadius - barThickness / 2));
                 Log.i(TAG, "onDraw: " + (nodeText == null));
                 if (nodeText != null && i < nodeText.length && !TextUtils.isEmpty(nodeText[i]))
                     canvas.drawText(nodeText[i], x - textPaint.measureText(nodeText[i]) / 2, baseline, textPaint);
@@ -200,7 +194,7 @@ public class TimeLine extends View implements View.OnTouchListener {
      * @return the pointer index the (x,y)
      */
     private int computePointIndex(int x, int y) {
-        if (y > DEFAULT_PADDING - mNodeRadius / 2 && y < DEFAULT_PADDING + barThickness + mNodeRadius / 2) {
+        if (y > defaultPadding - mNodeRadius / 2 && y < defaultPadding + barThickness + mNodeRadius / 2) {
             int v = x / mUnitGapSize;
             return activeNodes[v] ? v : -1;
         }
@@ -220,7 +214,7 @@ public class TimeLine extends View implements View.OnTouchListener {
                 if (index == downPointIndex & index != -1) {
                     // TODO: 2017/5/5
                     int rx = index * mUnitGapSize;
-                    int ry = barThickness / 2 + DEFAULT_PADDING;
+                    int ry = barThickness / 2 + defaultPadding;
                     if (onPointClickListener != null)
                         onPointClickListener.onPointerClick(index, (int) event.getRawX(), (int) event.getRawY());
                 }

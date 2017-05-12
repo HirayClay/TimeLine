@@ -8,18 +8,59 @@
 
     <com.example.seele.timeline.TimeLine
         android:id="@+id/time_line"
-        android:layout_centerInParent="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
         android:layout_margin="100dp"
-        android:onClick="onClick"
+        android:background="@color/colorPrimary"
         app:activeColor="@color/colorAccent"
         app:barColor="#f0f"
         app:barThickness="2dp"
+        app:default_padding="30dp"
         app:max="7"
         app:nodeSize="3dp"
         app:normalColor="@color/colorPrimary"
         app:textColor="#e6cf08"
         app:textSize="13sp"
         app:unitGapSize="40dp" />
+
+
+    <com.example.seele.timeline.Bubble
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        app:arrow_direction="left"
+        app:arrow_height="0dp"
+        app:arrow_start_position="20dp"
+        app:left_bottom_corner="10dp"
+        app:left_top_corner="10dp"
+        android:layout_marginTop="30dp"
+        app:arrow_color="@color/colorPrimary"
+        app:right_bottom_corner="10dp"
+        app:right_top_corner="10dp">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Content Scrim  Content Scrim"/>
+
+            <TextView
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Content Scrim  Content Scrim"/>
+            <TextView
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Content Scrim  Content Scrim"/>
+        </LinearLayout>
+
+    </com.example.seele.timeline.Bubble>
 </RelativeLayout>
