@@ -21,17 +21,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.seele.TestGFTActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".TestLoginActivity"
-            android:label="@string/title_activity_test_login" />
-        <activity android:name="com.example.seele.MainActivity"></activity>
     </application>
 
 </manifest>

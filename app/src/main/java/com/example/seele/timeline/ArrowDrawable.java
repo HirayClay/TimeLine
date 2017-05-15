@@ -36,7 +36,7 @@ public class ArrowDrawable extends Drawable {
     public ArrowDrawable(ArrowAlign mArrowAlign, float mArrowWidth, float mArrowHeight, float mArrowPosition,
                          float mArrowAnglePosition,
                          float ltCorner, float rtCorner, float lbCorner, float rbCorner,
-                         int left, int right, int top, int bottom) {
+                         int left, int top, int right, int bottom) {
         this.mArrowAlign = mArrowAlign;
         this.mArrowPosition = mArrowPosition;
         this.mArrowHeight = mArrowHeight;
@@ -56,11 +56,11 @@ public class ArrowDrawable extends Drawable {
         mPaint.setAntiAlias(true);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setColor(Color.parseColor("#ff00ff"));
-        mPaint.setStrokeWidth(4);
+        mPaint.setStrokeWidth(2);
 
         mPath = new Path();
         mPath.moveTo(rect.left + mArrowHeight, rect.top + mLtCorner);
-        mPath.rQuadTo(0, mLtCorner, mLtCorner, -mLtCorner);
+        mPath.rQuadTo(0, -mLtCorner, mLtCorner, -mLtCorner);
 
         mPath.rLineTo(rect.width()-mArrowHeight - mLtCorner - mRtCorner, 0);
         mPath.rQuadTo(mRtCorner, 0, mRtCorner, mRtCorner);
@@ -71,12 +71,12 @@ public class ArrowDrawable extends Drawable {
         mPath.rLineTo(-(rect.width()-mArrowHeight - mLbCorner - mRbCorner), 0);
         mPath.rQuadTo(-mLbCorner, 0, -mLbCorner, -mLbCorner);
 
-        mPath.rLineTo(0, rect.height() - mLtCorner - mLbCorner - mArrowWidth);
+        mPath.rLineTo(0, -(rect.height() - mArrowPosition  - mArrowWidth- mLbCorner));
         mPath.rLineTo(-mArrowHeight, -(mArrowWidth - mArrowAnglePostion));
         mPath.rLineTo(mArrowHeight, -mArrowAnglePostion);
 
-        float space = mArrowPosition - mLtCorner > 0 ? mArrowAnglePostion - mLtCorner : 0;
-        mPath.rLineTo(0, space);
+        float space = mArrowPosition - mLtCorner > 0 ? mArrowPosition - mLtCorner : 0;
+        mPath.rLineTo(0, -space);
         mPath.close();
     }
 

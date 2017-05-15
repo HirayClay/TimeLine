@@ -23,6 +23,7 @@
 
         <attr name="arrow_height" format="dimension" />
         <attr name="arrow_start_position" format="dimension" />
+        <attr name="arrow_angle_position" format="dimension"/>
         <attr name="arrow_width" format="dimension" />
         <attr name="arrow_color" format="color" />
 
