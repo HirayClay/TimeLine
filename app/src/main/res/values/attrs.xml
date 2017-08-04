@@ -27,6 +27,9 @@
         <attr name="arrow_width" format="dimension" />
         <attr name="arrow_color" format="color" />
 
+        <attr name="extra_corner_padding" format="boolean"/>
+        <attr name="extra_corner_ratio" format="float"/>
+
         <attr name="left_top_corner" format="dimension" />
         <attr name="right_top_corner" format="dimension" />
         <attr name="left_bottom_corner" format="dimension" />

@@ -3,6 +3,7 @@ package com.example.seele.timeline;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.support.annotation.Nullable;
@@ -16,6 +17,7 @@ import android.view.View;
 public class PathView extends View {
 
     private Paint mPaint;
+    private Matrix matrix;
 
     public PathView(Context context) {
         super(context);
@@ -28,12 +30,17 @@ public class PathView extends View {
         mPaint.setColor(Color.parseColor("#ff00ff"));
         mPaint.setStrokeWidth(20);
         mPaint.setStyle(Paint.Style.STROKE);
+        matrix = new Matrix();
+
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawPath(getPath(),mPaint);
+        Path path = getPath();
+        matrix.setValues(new float[]{-1, 0, getMeasuredWidth(), 0, 1, 0, 0, 0,0});
+        path.transform(matrix);
+        canvas.drawPath(path,mPaint);
     }
 
     Path getPath() {
@@ -43,7 +50,7 @@ public class PathView extends View {
         path.moveTo(10,10);
         path.rLineTo(width - 20,0);
         path.rLineTo(0,height-20);
-        path.rLineTo(-width+20,0);
+        path.rLineTo(-width+40,0);
         path.rLineTo(0,-height+20);
         path.close();
         return path;

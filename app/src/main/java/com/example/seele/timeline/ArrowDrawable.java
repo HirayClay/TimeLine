@@ -3,6 +3,7 @@ package com.example.seele.timeline;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
@@ -19,6 +20,7 @@ import android.support.annotation.Nullable;
 public class ArrowDrawable extends Drawable {
 
     private ArrowAlign mArrowAlign;
+    private final boolean mExtraCornerPadding;
     private float mArrowPosition;//arrow的起始位置
     private float mArrowAnglePostion;//arrow 尖距离arrow其实位置的距离
     private float mArrowWidth;//arrow宽度
@@ -33,11 +35,12 @@ public class ArrowDrawable extends Drawable {
     Path mPath;
 
 
-    public ArrowDrawable(ArrowAlign mArrowAlign, float mArrowWidth, float mArrowHeight, float mArrowPosition,
+    public ArrowDrawable(ArrowAlign mArrowAlign, boolean mExtraCornerPadding, float mArrowWidth, float mArrowHeight, float mArrowPosition,
                          float mArrowAnglePosition,
                          float ltCorner, float rtCorner, float lbCorner, float rbCorner,
                          int left, int top, int right, int bottom) {
         this.mArrowAlign = mArrowAlign;
+        this.mExtraCornerPadding = mExtraCornerPadding;
         this.mArrowPosition = mArrowPosition;
         this.mArrowHeight = mArrowHeight;
         this.mArrowWidth = mArrowWidth;
@@ -54,30 +57,91 @@ public class ArrowDrawable extends Drawable {
     private void init() {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
-        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         mPaint.setColor(Color.parseColor("#ff00ff"));
         mPaint.setStrokeWidth(2);
 
-        mPath = new Path();
-        mPath.moveTo(rect.left + mArrowHeight, rect.top + mLtCorner);
-        mPath.rQuadTo(0, -mLtCorner, mLtCorner, -mLtCorner);
+        //left to right matrix
+        Matrix l2rMatrix = new Matrix();
+        l2rMatrix.setValues(new float[]{-1, 0, rect.width(), 0, 1, 0, 0, 0, 1});
 
-        mPath.rLineTo(rect.width()-mArrowHeight - mLtCorner - mRtCorner, 0);
-        mPath.rQuadTo(mRtCorner, 0, mRtCorner, mRtCorner);
+        //top to bottom matrix
+        Matrix t2bMatrix = new Matrix();
+        t2bMatrix.setValues(new float[]{1, 0, 0, 0, -1, rect.height(), 0, 0, 1});
 
-        mPath.rLineTo(0, rect.height() - mRtCorner - mRbCorner);
-        mPath.rQuadTo(0, mRbCorner, -mRbCorner, mRbCorner);
+        switch (mArrowAlign) {
+            default:
+            case LEFT:
+                mPath = generateLeftAlignPath();
+                break;
+            case RIGHT:
+                mPath = generateLeftAlignPath();
+                mPath.transform(l2rMatrix);
+                break;
+            case TOP:
+                mPath = generateTopAlignPath();
+                break;
+            case BOTTOM:
+                mPath = generateTopAlignPath();
+                mPath.transform(t2bMatrix);
+                break;
+        }
 
-        mPath.rLineTo(-(rect.width()-mArrowHeight - mLbCorner - mRbCorner), 0);
-        mPath.rQuadTo(-mLbCorner, 0, -mLbCorner, -mLbCorner);
+    }
 
-        mPath.rLineTo(0, -(rect.height() - mArrowPosition  - mArrowWidth- mLbCorner));
-        mPath.rLineTo(-mArrowHeight, -(mArrowWidth - mArrowAnglePostion));
-        mPath.rLineTo(mArrowHeight, -mArrowAnglePostion);
+    private Path generateLeftAlignPath() {
+        Path path;
+        path = new Path();
+        path.moveTo(rect.left + mArrowHeight, rect.top + mLtCorner);
+        path.rQuadTo(0, -mLtCorner, mLtCorner, -mLtCorner);
+
+        path.rLineTo(rect.width() - mArrowHeight - mLtCorner - mRtCorner, 0);
+        path.rQuadTo(mRtCorner, 0, mRtCorner, mRtCorner);
+
+        path.rLineTo(0, rect.height() - mRtCorner - mRbCorner);
+        path.rQuadTo(0, mRbCorner, -mRbCorner, mRbCorner);
+
+        path.rLineTo(-(rect.width() - mArrowHeight - mLbCorner - mRbCorner), 0);
+        path.rQuadTo(-mLbCorner, 0, -mLbCorner, -mLbCorner);
+
+        path.rLineTo(0, -(rect.height() - mArrowPosition - mArrowWidth - mLbCorner));
+        path.rLineTo(-mArrowHeight, -(mArrowWidth - mArrowAnglePostion));
+        path.rLineTo(mArrowHeight, -mArrowAnglePostion);
 
         float space = mArrowPosition - mLtCorner > 0 ? mArrowPosition - mLtCorner : 0;
-        mPath.rLineTo(0, -space);
-        mPath.close();
+        path.rLineTo(0, -space);
+        path.close();
+        return path;
+    }
+
+    /**
+     * just do some easy work on {@link #generateLeftAlignPath} to write this method
+     *
+     * @return
+     */
+    private Path generateTopAlignPath() {
+        Path path;
+        path = new Path();
+        path.moveTo(rect.left, rect.top + mArrowHeight + mLtCorner);
+        path.rQuadTo(0, -mLtCorner, mLtCorner, -mLtCorner);
+
+        float space = mArrowPosition - mLtCorner > 0 ? mArrowPosition - mLtCorner : 0;
+
+        path.rLineTo(space, 0);
+        path.rLineTo(mArrowAnglePostion, -mArrowHeight);
+        path.rLineTo(mArrowWidth - mArrowAnglePostion, mArrowHeight);
+        path.rLineTo(rect.width() - mRtCorner - mArrowPosition - mArrowWidth, 0);
+        path.rQuadTo(mRtCorner, 0, mRtCorner, mRtCorner);
+
+        path.rLineTo(0, rect.height() - mArrowHeight - mRtCorner - mRbCorner);
+        path.rQuadTo(0, mRbCorner, -mRbCorner, mRbCorner);
+
+        path.rLineTo(-(rect.width() - mLbCorner - mRbCorner), 0);
+        path.rQuadTo(-mLbCorner, 0, -mLbCorner, -mLbCorner);
+
+        path.rLineTo(0, -(rect.height() - mLbCorner - mLtCorner - mArrowHeight));
+        path.close();
+        return path;
     }
 
     @Override
@@ -87,8 +151,8 @@ public class ArrowDrawable extends Drawable {
 
     @Override
     public void draw(@NonNull Canvas canvas) {
-        if (mPath != null&&!mPath.isEmpty())
-        canvas.drawPath(mPath, mPaint);
+        if (mPath != null && !mPath.isEmpty())
+            canvas.drawPath(mPath, mPaint);
     }
 
     @Override

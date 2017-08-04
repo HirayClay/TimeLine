@@ -7,12 +7,12 @@
     tools:context="com.example.seele.timeline.TimeLineActivity">
 
     <com.example.seele.timeline.TimeLine
+        android:visibility="gone"
         android:id="@+id/time_line"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_margin="100dp"
-        android:background="@color/colorPrimary"
         app:activeColor="@color/colorAccent"
         app:barColor="#f0f"
         app:barThickness="2dp"
@@ -26,6 +26,7 @@
 
 
     <com.example.seele.timeline.PathView
+        android:visibility="gone"
         android:layout_width="300dp"
         android:layout_height="60dp"
         android:layout_below="@id/time_line"
@@ -33,14 +34,17 @@
 
 
     <com.example.seele.timeline.Bubble
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="30dp"
         app:arrow_color="@color/colorPrimary"
-        app:arrow_direction="left"
+        app:arrow_direction="right"
         app:arrow_height="20dp"
         app:arrow_width="20dp"
+        app:extra_corner_padding="true"
+        app:extra_corner_ratio="0.5"
         app:arrow_angle_position="0dp"
         app:arrow_start_position="20dp"
         app:left_bottom_corner="10dp"
@@ -70,13 +74,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:textColor="@android:color/white"
                 android:text="Content Scrim  Content Scrim" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:textColor="@android:color/white"
                 android:text="Content Scrim  Content Scrim" />
         </LinearLayout>
 
     </com.example.seele.timeline.Bubble>
+
+
 </RelativeLayout>
